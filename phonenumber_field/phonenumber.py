@@ -3,6 +3,8 @@ import phonenumbers
 from django.core import validators
 from phonenumbers.phonenumberutil import NumberParseException
 from django.conf import settings
+from django.utils.encoding import force_unicode
+
 
 class PhoneNumber(phonenumbers.phonenumber.PhoneNumber):
     """
@@ -62,8 +64,6 @@ class PhoneNumber(phonenumbers.phonenumber.PhoneNumber):
 def to_python(value):
     if value in validators.EMPTY_VALUES:  # None or ''
         phone_number = None
-    elif value and isinstance(value, list):
-        return to_python(value[0])
     elif value and isinstance(value, basestring):
         try:
             phone_number = PhoneNumber.from_string(phone_number=value)
@@ -75,4 +75,7 @@ def to_python(value):
         phone_number = Phonenumber(value)
     elif isinstance(value, PhoneNumber):
         phone_number = value
+    else:
+        # force unicode to ensure a value is set
+        phone_number = force_unicode(value)
     return phone_number
